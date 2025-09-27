@@ -18,7 +18,9 @@ export default function Home() {
           <div className="max-w-screen-xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold mb-2">Try the dApp</h2>
-              <p className="text-muted-foreground">Connect your wallet and interact with the Sui blockchain</p>
+              <p className="text-muted-foreground">
+                Connect your wallet and interact with the Sui blockchain
+              </p>
             </div>
             <div className="flex justify-center">
               <DAppDemo />
