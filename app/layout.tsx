@@ -2,6 +2,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
+import { SuiWalletProvider } from "@/components/wallet-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -102,7 +103,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TooltipProvider>{children}</TooltipProvider>
+          <SuiWalletProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </SuiWalletProvider>
         </ThemeProvider>
       </body>
     </html>
