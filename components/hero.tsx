@@ -2,11 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, CirclePlay } from "lucide-react";
 import React from "react";
-import LogoCloud from "./logo-cloud";
+import { BackgroundPattern } from "./hero-06/background-pattern";
 
 const Hero = () => {
   return (
-    <div className="min-h-[calc(100vh-6rem)] flex flex-col items-center py-20 px-6">
+    <div className="min-h-[calc(50vh-12rem)] flex flex-col items-center py-20 px-6">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 to-transparent pointer-events-none -z-10"></div>
+
       <div className="md:mt-6 flex items-center justify-center">
         <div className="text-center max-w-2xl">
           <Badge className="bg-primary rounded-full py-1 border-none">
@@ -16,7 +18,8 @@ const Hero = () => {
             Rent deposits - now transparent and fair!
           </h1>
           <p className="mt-6 max-w-[60ch] xs:text-lg">
-            Blockchain-powered escrow for a better rental experience. The easiest way to get your deposit back. Disputes, resolved.
+            Blockchain-powered escrow for a better rental experience. The
+            easiest way to get your deposit back. Disputes, resolved.
           </p>
           <div className="mt-12 flex flex-col sm:flex-row items-center sm:justify-center gap-4">
             <Button
@@ -35,7 +38,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      <LogoCloud className="mt-24 max-w-3xl mx-auto" />
     </div>
   );
 };
