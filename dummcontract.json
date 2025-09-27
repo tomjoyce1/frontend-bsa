@@ -1,0 +1,113 @@
+{
+  "data": {
+    "objectId": "0xCONTRACT123",
+    "version": "1",
+    "digest": "F4Ghjk9AbCdEf...",
+    "type": "0xPACKAGEID::contract::Contract",
+    "owner": "Shared",
+    "previousTransaction": "0xTX123...",
+    "storageRebate": "1000000",
+    "content": {
+      "dataType": "moveObject",
+      "type": "0xPACKAGEID::contract::Contract",
+      "fields": {
+        "seller": "0xCAFE",
+        "buyer": "0xFACE",
+        "price": "100",
+        "guarantee": "1",
+        "seller_guarantee": "10",
+        "voting_fee": "1",
+        "deposit_time": "1754388000000",
+        "contract_time": "1759312800000",
+        "dispute_time": "604800000",
+        "funds": {
+          "type": "0x2::coin::Coin<0x2::sui::SUI>",
+          "fields": {
+            "id": { "id": "0xCOIN123" },
+            "balance": "111"
+          }
+        },
+        "image_hashes": [
+          "1111111111",
+          "2222222222"
+        ],
+        "desc_hash": [
+          "1",
+          "240",
+          "29",
+          "117",
+          "135",
+          "126",
+          "234",
+          "95",
+          "151",
+          "51",
+          "89",
+          "175",
+          "138",
+          "213",
+          "200",
+          "12",
+          "45",
+          "67",
+          "89",
+          "101",
+          "120",
+          "140",
+          "150",
+          "160",
+          "170",
+          "180",
+          "190",
+          "200",
+          "210",
+          "220",
+          "230",
+          "240"
+        ],
+        "is_dispute": true,
+        "dispute": {
+          "type": "0xPACKAGEID::contract::Dispute",
+          "fields": {
+            "dispute_desc": [
+              "84",
+              "101",
+              "110",
+              "97",
+              "110",
+              "116",
+              "32",
+              "99",
+              "108",
+              "97",
+              "105",
+              "109"
+            ],
+            "original_desc": [
+              "77",
+              "111",
+              "118",
+              "101",
+              "45",
+              "105",
+              "110"
+            ],
+            "voters_seller": "2",
+            "voters_buyer": "1",
+            "proofs_seller": ["3333333333"],
+            "proofs_buyer": ["4444444444"],
+            "dispute_deadline": "1758535200000",
+            "resolved": true,
+            "winner": "0xFACE"
+          }
+        },
+        "dispute_voters": {
+          "type": "0x2::table::Table",
+          "fields": {
+            "id": { "id": "0xTABLE123" }
+          }
+        }
+      }
+    }
+  }
+}
