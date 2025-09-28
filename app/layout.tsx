@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist } from "next/font/google";
 import "@mysten/dapp-kit/dist/index.css";
+import Navbar from "@/components/navbar/navbar";
 
 import "./globals.css";
 import { Providers } from "./providers";
@@ -21,7 +22,9 @@ export default function RootLayout({
       <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Providers>
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
           </Providers>
         </ThemeProvider>
       </body>
