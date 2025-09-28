@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { EvidenceGallery } from "./evidence-gallery";
 import { VoteSuccessModal } from "./vote-success-modal";
+import { StakePaymentModal } from "./stake-payment-modal";
 import { ArrowLeft, Scale, User, DollarSign, FileText, CheckCircle } from "lucide-react";
 
 const SERVER_URL = "http://localhost:3002";
@@ -40,11 +41,20 @@ interface JuryDetailProps {
   onBack: () => void;
 }
 
+interface StakePaymentModalProps {
+  voteFor: 'tenant' | 'landlord' | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading: boolean;
+}
+
 export function JuryDetail({ disputeId, currentAccount, onBack }: JuryDetailProps) {
   const [contract, setContract] = useState<Contract | null>(null);
   const [voteReason, setVoteReason] = useState("");
   const [hasVoted, setHasVoted] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showStakeModal, setShowStakeModal] = useState(false);
+  const [pendingVote, setPendingVote] = useState<'tenant' | 'landlord' | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -58,9 +68,106 @@ export function JuryDetail({ disputeId, currentAccount, onBack }: JuryDetailProp
       if (response.ok) {
         const contractData = await response.json();
         setContract(contractData);
+      } else {
+        // Use dummy data if API fails
+        const dummyContract = {
+          id: disputeId,
+          title: "Downtown Apartment Lease",
+          landlordAddress: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+          tenantAddress: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+          depositAmount: "1000",
+          currency: "SUI",
+          contractText: `RENTAL DEPOSIT ESCROW AGREEMENT\n\nContract: Downtown Apartment Lease\nContract ID: ${disputeId}\n\nPARTIES:\nLandlord: 0xCAFE1234567890ABCDEF1234567890ABCDEF1234\nTenant: 0xFACE1234567890ABCDEF1234567890ABCDEF1234\n\nTERMS:\n- Deposit Amount: 1000 SUI\n- Property: 123 Main St, Downtown Apartment\n- Lease Period: 12 months\n- Move-in Date: January 1, 2024\n\nDISPUTE DETAILS:\nThe tenant claims property damage was pre-existing.\nThe landlord claims damage occurred during tenancy.\n\nThis is a demo contract with dummy data for jury review.`,
+          dispute: {
+            evidence: [
+              {
+                id: "ev1",
+                uploader: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+                url: "/preview.png",
+                caption: "Broken window in living room - tenant claims pre-existing",
+                timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+                blobId: "1111111111"
+              },
+              {
+                id: "ev2",
+                uploader: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+                url: "/preview.png",
+                caption: "Water damage in bathroom ceiling",
+                timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                blobId: "4444444444"
+              },
+              {
+                id: "ev3",
+                uploader: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+                url: "/preview.png",
+                caption: "Move-in inspection photos showing no damage",
+                timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+                blobId: "2222222222"
+              },
+              {
+                id: "ev4",
+                uploader: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+                url: "/preview.png",
+                caption: "Professional cleaning receipt from before tenant move-in",
+                timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+                blobId: "3333333333"
+              }
+            ],
+            appealDeadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        };
+        setContract(dummyContract);
       }
     } catch (error) {
       console.error("Error fetching contract:", error);
+      // Use dummy data as fallback
+      const dummyContract = {
+        id: disputeId,
+        title: "Downtown Apartment Lease",
+        landlordAddress: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+        tenantAddress: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+        depositAmount: "1000",
+        currency: "SUI",
+        contractText: `RENTAL DEPOSIT ESCROW AGREEMENT\n\nContract: Downtown Apartment Lease\nContract ID: ${disputeId}\n\nPARTIES:\nLandlord: 0xCAFE1234567890ABCDEF1234567890ABCDEF1234\nTenant: 0xFACE1234567890ABCDEF1234567890ABCDEF1234\n\nTERMS:\n- Deposit Amount: 1000 SUI\n- Property: 123 Main St, Downtown Apartment\n- Lease Period: 12 months\n- Move-in Date: January 1, 2024\n\nDISPUTE DETAILS:\nThe tenant claims property damage was pre-existing.\nThe landlord claims damage occurred during tenancy.\n\nThis is a demo contract with dummy data for jury review.`,
+        dispute: {
+          evidence: [
+            {
+              id: "ev1",
+              uploader: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+              url: "/preview.png",
+              caption: "Broken window in living room - tenant claims pre-existing",
+              timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+              blobId: "1111111111"
+            },
+            {
+              id: "ev2",
+              uploader: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+              url: "/preview.png",
+              caption: "Water damage in bathroom ceiling",
+              timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+              blobId: "4444444444"
+            },
+            {
+              id: "ev3",
+              uploader: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+              url: "/preview.png",
+              caption: "Move-in inspection photos showing no damage",
+              timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+              blobId: "2222222222"
+            },
+            {
+              id: "ev4",
+              uploader: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+              url: "/preview.png",
+              caption: "Professional cleaning receipt from before tenant move-in",
+              timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+              blobId: "3333333333"
+            }
+          ],
+          appealDeadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      };
+      setContract(dummyContract);
     }
   };
 
@@ -75,20 +182,35 @@ export function JuryDetail({ disputeId, currentAccount, onBack }: JuryDetailProp
   };
 
   const handleVote = async (voteFor: 'tenant' | 'landlord') => {
+    setPendingVote(voteFor);
+    setShowStakeModal(true);
+  };
+
+  const handleStakePayment = async () => {
+    if (!pendingVote) return;
+    
     setLoading(true);
     try {
+      // Mock stake payment transaction
+      const stakeAmount = "10"; // 10 SUI stake
+      const mockTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
+      
+      // Submit vote with stake proof
       const response = await fetch(`${SERVER_URL}/contracts/${disputeId}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           voter: currentAccount.address,
-          voteFor,
-          reason: voteReason.trim() || undefined
+          voteFor: pendingVote,
+          reason: voteReason.trim() || undefined,
+          stakeAmount,
+          stakeTxHash: mockTxHash
         }),
       });
 
       if (response.ok) {
         setHasVoted(true);
+        setShowStakeModal(false);
         setShowSuccessModal(true);
       }
     } catch (error) {
@@ -263,6 +385,19 @@ export function JuryDetail({ disputeId, currentAccount, onBack }: JuryDetailProp
           </Card>
         )}
       </div>
+
+      {/* Stake Payment Modal */}
+      {showStakeModal && (
+        <StakePaymentModal
+          voteFor={pendingVote}
+          onConfirm={handleStakePayment}
+          onCancel={() => {
+            setShowStakeModal(false);
+            setPendingVote(null);
+          }}
+          loading={loading}
+        />
+      )}
 
       {/* Success Modal */}
       {showSuccessModal && (

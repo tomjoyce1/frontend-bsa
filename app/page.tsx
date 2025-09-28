@@ -28,9 +28,9 @@ export default function Home() {
           </div>
         </section>
         <Features />
-        <Pricing />
+        {/* <Pricing />
         <FAQ />
-        <Testimonials />
+        <Testimonials /> */}
         <CTABanner />
         <Footer />
       </main>

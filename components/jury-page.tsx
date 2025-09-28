@@ -41,9 +41,62 @@ export function JuryPage() {
       if (response.ok) {
         const disputeData = await response.json();
         setDisputes(disputeData);
+      } else {
+        // Use dummy data if API fails
+        const dummyDisputes = [
+          {
+            id: "SC-0001",
+            title: "Downtown Apartment Lease",
+            landlordAddress: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+            tenantAddress: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+            depositAmount: "1000",
+            currency: "SUI",
+            appealDeadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+            evidenceCount: 4,
+            voteCount: 2
+          },
+          {
+            id: "SC-0002",
+            title: "Suburban House Rental",
+            landlordAddress: "0xDEAD1234567890ABCDEF1234567890ABCDEF1234",
+            tenantAddress: "0xBEEF1234567890ABCDEF1234567890ABCDEF1234",
+            depositAmount: "2500",
+            currency: "SUI",
+            appealDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            evidenceCount: 6,
+            voteCount: 1
+          }
+        ];
+        setDisputes(dummyDisputes);
       }
     } catch (error) {
       console.error("Error fetching disputes:", error);
+      // Use dummy data as fallback
+      const dummyDisputes = [
+        {
+          id: "SC-0001",
+          title: "Downtown Apartment Lease",
+          landlordAddress: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
+          tenantAddress: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
+          depositAmount: "1000",
+          currency: "SUI",
+          appealDeadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+          evidenceCount: 4,
+          voteCount: 2
+        },
+        {
+          id: "SC-0002",
+          title: "Suburban House Rental",
+          landlordAddress: "0xDEAD1234567890ABCDEF1234567890ABCDEF1234",
+          tenantAddress: "0xBEEF1234567890ABCDEF1234567890ABCDEF1234",
+          depositAmount: "2500",
+          currency: "SUI",
+          appealDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+          evidenceCount: 6,
+          voteCount: 1
+        }
+      ];
+      setDisputes(dummyDisputes);
     } finally {
       setLoading(false);
     }

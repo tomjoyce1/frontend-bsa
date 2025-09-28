@@ -110,6 +110,24 @@ Created: ${new Date().toLocaleString()}
               </pre>
             </div>
           </div>
+te
+          {/* Contract ID Display */}
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="p-4">
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-green-800">Contract Created Successfully!</h3>
+                <div className="bg-white p-3 rounded-lg border border-green-300">
+                  <p className="text-sm text-muted-foreground mb-1">Contract ID:</p>
+                  <code className="text-lg font-mono font-bold text-green-700">
+                    SC-{Math.random().toString(36).substr(2, 6).toUpperCase()}
+                  </code>
+                </div>
+                <p className="text-sm text-green-600">
+                  Share this ID with your tenant to access the contract
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={onClose}>

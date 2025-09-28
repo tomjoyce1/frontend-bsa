@@ -1,0 +1,3 @@
+export const DEVNET_COUNTER_PACKAGE_ID =
+  "0x3e8fa6e916ae72eb894b84c4228d41556d099d5d4f853e7c41ebde152cc0723a";
+ 

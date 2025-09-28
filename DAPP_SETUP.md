@@ -18,7 +18,7 @@ npm install
 
 - **Wallet Connection**: Connect/disconnect Sui wallets via the navbar
 - **dApp Demo**: Interactive component showing wallet status and balance fetching
-- **Sui Integration**: Uses Sui testnet for blockchain interactions
+- **Sui Integration**: Uses Sui devnet for blockchain interactions
 
 ## Components Added
 
