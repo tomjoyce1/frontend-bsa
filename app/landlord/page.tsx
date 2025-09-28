@@ -25,6 +25,15 @@ export default function LandlordPage() {
   const suiClient = useSuiClient();
 
   const [contractId, setContractId] = useState("");
+
+  const [price, setPrice] = useState("");
+
+  const [landlordsGuarantee, setLandlordsGuarantee] = useState("");
+
+  const [tenantsGuarantee, setTenantsGuarantee] = useState("");
+
+  const [votingFee, setVotingFee] = useState("");
+
   const [originalDesc, setOriginalDesc] = useState("");
   const [disputeDesc, setDisputeDesc] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,45 +41,49 @@ export default function LandlordPage() {
   const [newContractId, setNewContractId] = useState<string>("");
 
   const raiseDispute = async () => {
-    if (!currentAccount || !contractId || !originalDesc || !disputeDesc) return;
+    if (!currentAccount || !contractId) return;
     setIsLoading(true);
+    const contractObj = await suiClient.getObject({
+      id: contractId,
+      options: { showContent: true },
+    });
+    if (!contractObj.data) throw new Error("Contract not found");
 
+    console.log("Contract object:", contractObj.data);
+    console.log("Contract owner:", contractObj.data.owner);
+    console.log("Contract type:", contractObj.data.type);
+
+    // Get price and guarantee from the actual contract being deposited to
+    const actualContractData = contractObj.data.content as any;
     try {
       const tx = new Transaction();
       tx.setGasBudget(50_000_000);
 
-      const contractObj = await suiClient.getObject({
-        id: contractId,
-        options: { showContent: true },
-      });
-      if (!contractObj.data) throw new Error("Contract not found");
+      if (
+        contractObj.data.owner &&
+        typeof contractObj.data.owner === "object" &&
+        "Shared" in contractObj.data.owner
+      ) {
+        // Shared object
+        const sharedOwner = contractObj.data.owner as any;
+        const initialSharedVersion = sharedOwner.Shared.initial_shared_version;
+        console.log("Using shared object with version:", initialSharedVersion);
 
-      const clock = await suiClient.getObject({ id: "0x6" });
-      if (!clock?.data?.version) throw new Error("Cannot fetch clock");
+        tx.moveCall({
+          target: `${packageId}::actual::make_deposit`,
+          arguments: [
+            tx.sharedObjectRef({
+              objectId: contractId,
+              initialSharedVersion: initialSharedVersion,
+              mutable: true,
+            }),
+            tx.pure.vector("u8", []),
+            tx.pure.vector("u8", []), // desc_hash
 
-      tx.moveCall({
-        target: `${packageId}::contract::raise_dispute`,
-        arguments: [
-          tx.objectRef({
-            objectId: contractId,
-            version: contractObj.data.version!,
-            digest: contractObj.data.digest!,
-          }),
-          tx.pure.vector(
-            "u8",
-            Array.from(new TextEncoder().encode(originalDesc))
-          ),
-          tx.pure.vector(
-            "u8",
-            Array.from(new TextEncoder().encode(disputeDesc))
-          ),
-          tx.sharedObjectRef({
-            objectId: "0x6",
-            initialSharedVersion: clock.data.version,
-            mutable: false,
-          }),
-        ],
-      });
+            tx.object("0x6"),
+          ],
+        });
+      }
 
       const result = await signAndExecute({ transaction: tx });
       console.log("Dispute raised:", result);
@@ -238,6 +251,26 @@ export default function LandlordPage() {
                   <CardTitle>Create New Contract</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <Input
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Landlord's Guarantee"
+                    value={landlordsGuarantee}
+                    onChange={(e) => setLandlordsGuarantee(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Tenant's Guarantee"
+                    value={tenantsGuarantee}
+                    onChange={(e) => setTenantsGuarantee(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Voting Fee"
+                    value={votingFee}
+                    onChange={(e) => setVotingFee(e.target.value)}
+                  />
                   <Button
                     onClick={createNewContract}
                     disabled={waitingForTxn}
@@ -291,8 +324,8 @@ export default function LandlordPage() {
                         onClick={raiseDispute}
                         disabled={
                           !contractId ||
-                          !originalDesc ||
-                          !disputeDesc ||
+                          // !originalDesc ||
+                          // !disputeDesc ||
                           isLoading
                         }
                         className="w-full"
