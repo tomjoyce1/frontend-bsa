@@ -19,7 +19,7 @@ export const Logo = () => (
         fontFamily="sans-serif"
         fontWeight="bold"
       >
-        depoz.io
+        coinflict.io
       </text>
     </svg>
 

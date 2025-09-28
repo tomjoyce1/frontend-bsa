@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import { useWalletKit } from "@mysten/wallet-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EvidenceUpload } from "./evidence-upload";
 import { EvidenceList } from "./evidence-list";
 import { Search, AlertTriangle, Scale } from "lucide-react";
@@ -46,10 +52,12 @@ export function DisputePage() {
 
     setLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`${SERVER_URL}/contracts/${searchId.trim()}`);
-      
+      const response = await fetch(
+        `${SERVER_URL}/contracts/${searchId.trim()}`
+      );
+
       if (!response.ok) {
         // Use dummy data if API fails
         const dummyContract = {
@@ -57,35 +65,46 @@ export function DisputePage() {
           title: "Downtown Apartment Lease",
           status: "Dispute",
           landlordDecision: "Withheld",
-          appealWindowStart: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          appealWindowStart: new Date(
+            Date.now() - 2 * 24 * 60 * 60 * 1000
+          ).toISOString(),
           dispute: {
             appealedBy: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
-            appealOpenedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            appealDeadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+            appealOpenedAt: new Date(
+              Date.now() - 1 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+            appealDeadline: new Date(
+              Date.now() + 6 * 24 * 60 * 60 * 1000
+            ).toISOString(),
             evidence: [
               {
                 id: "ev1",
                 uploader: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
-                url: "/preview.png",
+                url: "/dirtyhosue2.jpg",
                 caption: "Property damage - broken window in living room",
-                timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                blobId: "1111111111"
+                timestamp: new Date(
+                  Date.now() - 2 * 60 * 60 * 1000
+                ).toISOString(),
+                blobId: "1111111111",
               },
               {
                 id: "ev2",
                 uploader: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
-                url: "/preview.png",
-                caption: "Pre-existing damage documented before tenant moved in",
-                timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-                blobId: "2222222222"
-              }
-            ]
-          }
+                url: "/dirtyrental.jpg",
+                caption:
+                  "Pre-existing damage documented before tenant moved in",
+                timestamp: new Date(
+                  Date.now() - 1 * 60 * 60 * 1000
+                ).toISOString(),
+                blobId: "2222222222",
+              },
+            ],
+          },
         };
         setContract(dummyContract);
         return;
       }
-      
+
       const contractData = await response.json();
       setContract(contractData);
     } catch (error) {
@@ -96,30 +115,40 @@ export function DisputePage() {
         title: "Downtown Apartment Lease",
         status: "Dispute",
         landlordDecision: "Withheld",
-        appealWindowStart: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        appealWindowStart: new Date(
+          Date.now() - 2 * 24 * 60 * 60 * 1000
+        ).toISOString(),
         dispute: {
           appealedBy: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
-          appealOpenedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          appealDeadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+          appealOpenedAt: new Date(
+            Date.now() - 1 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+          appealDeadline: new Date(
+            Date.now() + 6 * 24 * 60 * 60 * 1000
+          ).toISOString(),
           evidence: [
             {
               id: "ev1",
               uploader: "0xFACE1234567890ABCDEF1234567890ABCDEF1234",
               url: "/preview.png",
               caption: "Property damage - broken window in living room",
-              timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-              blobId: "1111111111"
+              timestamp: new Date(
+                Date.now() - 2 * 60 * 60 * 1000
+              ).toISOString(),
+              blobId: "1111111111",
             },
             {
               id: "ev2",
               uploader: "0xCAFE1234567890ABCDEF1234567890ABCDEF1234",
               url: "/preview.png",
               caption: "Pre-existing damage documented before tenant moved in",
-              timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-              blobId: "2222222222"
-            }
-          ]
-        }
+              timestamp: new Date(
+                Date.now() - 1 * 60 * 60 * 1000
+              ).toISOString(),
+              blobId: "2222222222",
+            },
+          ],
+        },
       };
       setContract(dummyContract);
     } finally {
@@ -131,15 +160,20 @@ export function DisputePage() {
     if (!contract || !currentAccount) return;
 
     try {
-      const response = await fetch(`${SERVER_URL}/contracts/${contract.id}/appeal`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          appealedBy: currentAccount.address,
-          appealOpenedAt: new Date().toISOString(),
-          appealDeadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-        }),
-      });
+      const response = await fetch(
+        `${SERVER_URL}/contracts/${contract.id}/appeal`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            appealedBy: currentAccount.address,
+            appealOpenedAt: new Date().toISOString(),
+            appealDeadline: new Date(
+              Date.now() + 7 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          }),
+        }
+      );
 
       if (response.ok) {
         const updatedContract = await response.json();
@@ -150,11 +184,15 @@ export function DisputePage() {
     }
   };
 
-  const canAppeal = contract && 
-    contract.status === "Expired" && 
+  const canAppeal =
+    contract &&
+    contract.status === "Expired" &&
     contract.landlordDecision === "Withheld" &&
     contract.appealWindowStart &&
-    new Date() <= new Date(new Date(contract.appealWindowStart).getTime() + 7 * 24 * 60 * 60 * 1000) &&
+    new Date() <=
+      new Date(
+        new Date(contract.appealWindowStart).getTime() + 7 * 24 * 60 * 60 * 1000
+      ) &&
     !contract.dispute?.appealedBy;
 
   const isInDispute = contract?.status === "Dispute";
@@ -184,7 +222,7 @@ export function DisputePage() {
               {loading ? "Searching..." : "Search"}
             </Button>
           </div>
-          
+
           {error && (
             <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
               <p className="text-sm text-destructive">{error}</p>
@@ -202,11 +240,15 @@ export function DisputePage() {
               Appeal Available
             </CardTitle>
             <CardDescription className="text-orange-700">
-              The landlord has withheld your deposit. You can appeal this decision within the appeal window.
+              The landlord has withheld your deposit. You can appeal this
+              decision within the appeal window.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleAppeal} className="bg-orange-600 hover:bg-orange-700">
+            <Button
+              onClick={handleAppeal}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
               Submit Appeal
             </Button>
           </CardContent>
@@ -222,10 +264,14 @@ export function DisputePage() {
               Dispute Active
             </CardTitle>
             <CardDescription className="text-red-700">
-              This contract is under dispute. Both parties can upload evidence below.
+              This contract is under dispute. Both parties can upload evidence
+              below.
               {contract.dispute?.appealDeadline && (
                 <span className="block mt-1">
-                  Appeal deadline: {new Date(contract.dispute.appealDeadline).toLocaleDateString()}
+                  Appeal deadline:{" "}
+                  {new Date(
+                    contract.dispute.appealDeadline
+                  ).toLocaleDateString()}
                 </span>
               )}
             </CardDescription>
@@ -240,16 +286,20 @@ export function DisputePage() {
             contractId={contract.id}
             currentAccount={currentAccount}
             onEvidenceUploaded={(evidence) => {
-              setContract(prev => prev ? {
-                ...prev,
-                dispute: {
-                  ...prev.dispute,
-                  evidence: [...(prev.dispute?.evidence || []), evidence]
-                }
-              } : null);
+              setContract((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      dispute: {
+                        ...prev.dispute,
+                        evidence: [...(prev.dispute?.evidence || []), evidence],
+                      },
+                    }
+                  : null
+              );
             }}
           />
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Upload Guidelines</CardTitle>

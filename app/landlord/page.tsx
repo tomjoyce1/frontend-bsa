@@ -133,7 +133,7 @@ export default function LandlordPage() {
     const tx = new Transaction();
 
     // Create a coin with the exact seller guarantee amount
-    const [sellerGuaranteeCoin] = tx.splitCoins(tx.gas, [9953786239]);
+    const [sellerGuaranteeCoin] = tx.splitCoins(tx.gas, [1]);
 
     tx.moveCall({
       arguments: [
@@ -142,11 +142,11 @@ export default function LandlordPage() {
         ), // buyer
         tx.pure.u64(10), // price
         tx.pure.u64(10), // guarantee
-        tx.pure.u64(9953786239), // seller_guarantee
+        tx.pure.u64(1), // seller_guarantee
         tx.pure.u64(10), // voting_fee
-        tx.pure.u64(100), // deposit_time
-        tx.pure.u64(100), // contract_time
-        tx.pure.u64(100), // dispute_time
+        tx.pure.u64(10000000), // deposit_time
+        tx.pure.u64(1000000), // contract_time
+        tx.pure.u64(1000000), // dispute_time
         tx.pure.vector("u64", []), // image_hashes
         tx.pure.vector("u8", []), // desc_hash
         sellerGuaranteeCoin, // seller_guarantee_coin
@@ -160,18 +160,56 @@ export default function LandlordPage() {
       { transaction: tx },
       {
         onSuccess: (result) => {
-          suiClient
-            .waitForTransaction({ digest: result.digest })
-            .then(async (txResult) => {
-              // Extract contract ID from transaction effects
-              const createdObjects = txResult.effects?.created;
-              if (createdObjects && createdObjects.length > 0) {
-                const contractId = createdObjects[0].reference.objectId;
-                setNewContractId(contractId);
-                console.log("Shared contract ID:", contractId);
+          const getTransactionWithRetry = async (
+            digest: string,
+            retries = 3
+          ) => {
+            for (let i = 0; i < retries; i++) {
+              try {
+                await new Promise((resolve) =>
+                  setTimeout(resolve, 1000 * (i + 1))
+                );
+                const txResult = await suiClient.getTransactionBlock({
+                  digest,
+                  options: { showEffects: true, showObjectChanges: true },
+                });
+
+                const createdObjects = txResult.effects?.created;
+                const objectChanges = txResult.objectChanges;
+
+                let contractId = "";
+                if (createdObjects && createdObjects.length > 0) {
+                  contractId = createdObjects[0].reference.objectId;
+                } else if (objectChanges) {
+                  const createdObject = objectChanges.find(
+                    (change) => change.type === "created"
+                  );
+                  if (createdObject && "objectId" in createdObject) {
+                    contractId = createdObject.objectId;
+                  }
+                }
+
+                if (contractId) {
+                  setNewContractId(contractId);
+                  console.log("Contract ID:", contractId);
+                } else {
+                  console.log("Full transaction result:", txResult);
+                }
+                setWaitingForTxn(false);
+                return;
+              } catch (error) {
+                if (i === retries - 1) {
+                  console.error(
+                    "Error getting transaction after retries:",
+                    error
+                  );
+                  setWaitingForTxn(false);
+                }
               }
-              setWaitingForTxn(false);
-            });
+            }
+          };
+
+          getTransactionWithRetry(result.digest);
         },
         onError: () => {
           setWaitingForTxn(false);
@@ -218,71 +256,84 @@ export default function LandlordPage() {
                   )}
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Dispute Management</CardTitle>
                 </CardHeader>
-              <CardContent className="space-y-4">
-                <Input
-                  placeholder="Contract ID"
-                  value={contractId}
-                  onChange={(e) => setContractId(e.target.value)}
-                />
+                <CardContent className="space-y-4">
+                  <Input
+                    placeholder="Contract ID"
+                    value={contractId}
+                    onChange={(e) => setContractId(e.target.value)}
+                  />
 
-                <Textarea
-                  placeholder="Original Description"
-                  value={originalDesc}
-                  onChange={(e) => setOriginalDesc(e.target.value)}
-                />
+                  <Textarea
+                    placeholder="Original Description"
+                    value={originalDesc}
+                    onChange={(e) => setOriginalDesc(e.target.value)}
+                  />
 
-                <Textarea
-                  placeholder="Dispute Description"
-                  value={disputeDesc}
-                  onChange={(e) => setDisputeDesc(e.target.value)}
-                />
+                  <Textarea
+                    placeholder="Dispute Description"
+                    value={disputeDesc}
+                    onChange={(e) => setDisputeDesc(e.target.value)}
+                  />
 
-                {!currentAccount ? (
-                  <ConnectButton className="w-full">
-                    <Wallet className="h-4 w-4 mr-2" />
-                    Connect Wallet
-                  </ConnectButton>
-                ) : (
-                  <div className="space-y-2">
-                    <Button
-                      onClick={raiseDispute}
-                      disabled={
-                        !contractId ||
-                        !originalDesc ||
-                        !disputeDesc ||
-                        isLoading
-                      }
-                      className="w-full"
-                    >
-                      {isLoading && (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      )}
-                      Raise Dispute
-                    </Button>
+                  {!currentAccount ? (
+                    <ConnectButton className="w-full">
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet
+                    </ConnectButton>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button
+                        onClick={raiseDispute}
+                        disabled={
+                          !contractId ||
+                          !originalDesc ||
+                          !disputeDesc ||
+                          isLoading
+                        }
+                        className="w-full"
+                      >
+                        {isLoading && (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        )}
+                        Raise Dispute
+                      </Button>
 
-                    <Button
-                      onClick={resolveDispute}
-                      disabled={!contractId || isLoading}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      {isLoading && (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      )}
-                      Resolve Dispute
-                    </Button>
-                  </div>
-                )}
+                      <Button
+                        onClick={resolveDispute}
+                        disabled={!contractId || isLoading}
+                        className="w-full"
+                        variant="outline"
+                      >
+                        {isLoading && (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        )}
+                        Resolve Dispute
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
           </div>
         </div>
+        {newContractId && (
+          <div className="text-center py-8 bg-green-50 border-t">
+            <h3 className="text-lg font-semibold mb-2">
+              Contract Created Successfully!
+            </h3>
+            <p className="text-sm text-gray-600">
+              Contract ID:{" "}
+              <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                {newContractId}
+              </span>
+            </p>
+          </div>
+        )}
         <Footer />
       </main>
     </>

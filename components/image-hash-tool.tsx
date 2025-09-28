@@ -31,19 +31,21 @@ export function ImageHashTool() {
     setSearchLoading(true);
     setError(null);
     setRetrievedImage(null);
-    
+
     try {
       const response = await fetch(`${SERVER_URL}/image/${hashInput.trim()}`);
-      
+
       if (!response.ok) {
         throw new Error(`Image not found (${response.status})`);
       }
-      
+
       const imageUrl = `${SERVER_URL}/image/${hashInput.trim()}`;
       setRetrievedImage(imageUrl);
     } catch (error) {
       console.error("Error retrieving image:", error);
-      setError(error instanceof Error ? error.message : "Failed to retrieve image");
+      setError(
+        error instanceof Error ? error.message : "Failed to retrieve image"
+      );
     } finally {
       setSearchLoading(false);
     }
@@ -102,16 +104,16 @@ export function ImageHashTool() {
             <CardHeader>
               <CardTitle className="flex items-center justify-center gap-2">
                 <Search className="h-5 w-5" />
-                Retrieve Image by Hash
+                Retrieve Image by UUID
               </CardTitle>
               <CardDescription>
-                Enter a hash to retrieve the corresponding image
+                Enter a UUID to retrieve the corresponding image
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter hash (e.g., 0x1234...)"
+                  placeholder="Enter UUID (e.g., 0x1234...)"
                   value={hashInput}
                   onChange={(e) => setHashInput(e.target.value)}
                   className="flex-1"
@@ -160,10 +162,10 @@ export function ImageHashTool() {
             <CardHeader>
               <CardTitle className="flex items-center justify-center gap-2">
                 <Upload className="h-5 w-5" />
-                Upload Images for Hashing
+                Upload Images for UUID
               </CardTitle>
               <CardDescription>
-                Upload one or more images to generate their hash values
+                Upload one or more images to generate their UUID values
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -207,7 +209,7 @@ export function ImageHashTool() {
                           {(item.file.size / 1024).toFixed(1)} KB
                         </span>
                       </div>
-                      
+
                       <div className="flex gap-4">
                         <div className="flex-shrink-0">
                           <img
